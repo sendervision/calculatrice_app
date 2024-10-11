@@ -8,9 +8,10 @@ interface ButtonCalParams {
 	onPress: (value: string | number) => void,
 	style?: StyleProp<ViewStyle>,
 	textStyle?: StyleProp<TextStyle>
+	onLongPress: (value: string | number) => void
 }
 
-export function ButtonCal({label, onPress, style, textStyle}: ButtonCalParams){
+export function ButtonCal({label, onPress, style, textStyle, onLongPress}: ButtonCalParams){
 	const theme = useTheme()
 
 	return(
@@ -22,7 +23,9 @@ export function ButtonCal({label, onPress, style, textStyle}: ButtonCalParams){
 				},
 				style,
 			]} 
-			onPress={() => onPress(label)}>
+			onPress={() => onPress(label)}
+			onLongPress={() => onLongPress(label)}
+		>
 			<Text
 				style={[
 					{

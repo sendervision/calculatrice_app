@@ -7,12 +7,13 @@ import { ButtonCal } from "./Btn"
 interface KeyBoardParam {
 	style?: StyleProp<ViewStyle>,
 	onPressedButton: (value: string | number) => void
+	onLongPressedButton: (value: number | string) => void
 
 }
 
 const { height } = Dimensions.get("window")
 
-export function KeyBoard({ style, onPressedButton }: KeyBoardParam){
+export function KeyBoard({ style, onPressedButton, onLongPressedButton }: KeyBoardParam){
 	const theme = useTheme()
 
 	const input_number = [
@@ -20,7 +21,7 @@ export function KeyBoard({ style, onPressedButton }: KeyBoardParam){
 		[7, 8, 9],
 		[4, 5, 6],
 		[1, 2, 3],
-		["%", 0, "."],
+		["^", 0, "."],
 	]
 
 
@@ -38,6 +39,7 @@ export function KeyBoard({ style, onPressedButton }: KeyBoardParam){
 										style={{backgroundColor: index == 0? theme.colors.primaryContainer : theme.colors.background}}
 										textStyle={{color: theme.colors.primary}}
 										onPress={onPressedButton}
+										onLongPress={onLongPressedButton}
 									/>
 								))
 							}

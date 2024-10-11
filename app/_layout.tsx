@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Children, useEffect, useState } from "react";
 import { Stack, SplashScreen } from "expo-router";
 import { PaperProvider } from "react-native-paper"
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -10,7 +10,7 @@ import { NotoSans_400Regular } from '@expo-google-fonts/noto-sans'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 
 import { Themes } from "@/utils/theme"
-import { ThemeProvider } from "@/hooks/theme";
+import { ThemeProvider, useTheme as useGetTheme } from "@/hooks/theme";
 
 type Theme = 'light' | 'dark'
 
@@ -38,12 +38,16 @@ const RootLayout = () => {
     return null
   }
 
-  return <RootLayoutNav />
+  return(
+    <ThemeProvider>
+      <RootLayoutNav />
+    </ThemeProvider>
+  )
 }
 
 
 function RootLayoutNav() {
-  const [theme, setTheme] = useState<Theme>("light");
+  const { theme } = useGetTheme()
 
 
   useEffect(() => {
@@ -52,26 +56,23 @@ function RootLayoutNav() {
         | Theme
         | "light";
       if (savedTheme) {
-        setTheme(savedTheme);
         AsyncStorage.setItem("theme", savedTheme);
       }
     })();
-  }, []);
+  }, [theme]);
 
   return (
-    <ThemeProvider>
-      <PaperProvider
-        theme={Themes[theme]["cyan"]}
+    <PaperProvider
+      theme={Themes[theme]["cyan"]}
+    >
+      <Stack
+        screenOptions={{
+          headerShown: false
+        }}
       >
-        <Stack
-          screenOptions={{
-            headerShown: false
-          }}
-        >
-          <Stack.Screen name="index" />
-        </Stack>
-      </PaperProvider>
-    </ThemeProvider>
+        <Stack.Screen name="index" />
+      </Stack>
+    </PaperProvider>
   );
 }
 

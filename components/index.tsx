@@ -1,8 +1,4 @@
-import { ButtonCal } from '@/components/Btn'
-import { KeyBoard } from '@/components/KeyBoard'
+export { ButtonCal } from '@/components/Btn'
+export { KeyBoard } from '@/components/KeyBoard'
+export { HeadBar } from '@/components/headbar'
 
-
-export {
-	KeyBoard,
-	ButtonCal
-}

@@ -13,7 +13,7 @@ import {
   configureFonts,
 } from 'react-native-paper'
 
-import Colors from '@/constants/colors'
+import { Colors } from '@/constants/colors'
 
 const { LightTheme, DarkTheme } = adaptNavigationTheme({
   reactNavigationLight: NavigationDefaultTheme,

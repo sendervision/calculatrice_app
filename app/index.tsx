@@ -1,11 +1,11 @@
-import { Dimensions, StyleSheet, TextInput } from "react-native";
-import { Surface, Text, useTheme } from "react-native-paper";
+import { Dimensions, StyleSheet } from "react-native";
+import { Surface, useTheme } from "react-native-paper";
 import { View } from "react-native";
 import { useState } from "react";
-import { evaluate, format } from 'mathjs'
+import { evaluate } from 'mathjs'
 import * as Animatable from 'react-native-animatable'
 
-import { KeyBoard } from "@/components";
+import { HeadBar, KeyBoard } from "@/components";
 import { fadeInResult } from '@/utils/animation'
 
 const { height } = Dimensions.get("window")
@@ -15,19 +15,26 @@ export default function Index() {
   const [valueInput, setValueInput] = useState("")
   const [valueResult, setValueResult] = useState<string | number>(0)
 
-  const [sizeOperation, setSizeOperation] = useState<number>(30)
+  const [fontSizeResult, setFontSizeResult] = useState<number>(30)
   const animationResult = fadeInResult
 
   const array_number = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
-  const array_operator = ["+", "÷", "×", "-"]
+  const array_operator = ["+", "÷", "×", "-", "^"]
   const array_other = ["."]
 
   const getResponse = (eq: string = valueInput) => {
+    if (eq === "Erreur" || valueInput === "Erreur"){
+      setValueInput("");
+      setValueResult(0);
+      return;
+    }
     eq = eq.replaceAll("×", "*").replaceAll("÷", "/")
     try{
-      const resp = evaluate(eq)
+      let resp = evaluate(eq)
+      if (Number.isNaN(resp)) resp = 0;
+      if (resp === Infinity) resp = "Erreur"
       setValueResult(resp ?? 0)
-    } catch(error){}
+    } catch(error){ }
   }
 
   const onReset = () =>{
@@ -36,24 +43,17 @@ export default function Index() {
   }
   const onDeleteLastElement = () =>{
     const eq = valueInput.slice(0, -1)
-    setValueInput(eq); 
+    setValueInput(eq);
     getResponse(eq);
   }
 
   const onPressedButton = (value: string | number) => {
-    setSizeOperation(25)
+    setFontSizeResult(25)
     let eq = valueInput;
     const all_array = [...array_number, ...array_operator, ...array_other];
 
-    if (value === "C") {
-        onReset();
-        return;
-    }
-    
-    if (value === "⊗") {
-        onDeleteLastElement();
-        return;
-    }
+    if (value === "C") return onReset();
+    if (value === "⊗") return onDeleteLastElement();
 
     const lastInput = valueInput.slice(-1);
     const isLastInputOperator = array_operator.includes(lastInput);
@@ -68,11 +68,14 @@ export default function Index() {
     if (value === "=") {
       const eq = valueInput.replaceAll("×", "*").replaceAll("÷", "/")
       try{
-        const resp = evaluate(eq)
+        let resp = evaluate(eq)
+        if (Number.isNaN(resp)) resp = 0;
+        if (resp === Infinity) resp = "Erreur"
         setValueResult("")
-        setValueInput(resp.toString())
-        setSizeOperation(60)
-      } catch(err) { setValueResult("Erreur")}
+        setValueInput(resp?.toString())
+        // Gèrer le fontsize en fonction de la longeur du nombre
+        setFontSizeResult(resp?.toString().length <= 10? 40 : 25)
+      } catch(err) {console.log(err); setValueResult("Erreur")}
       finally{ return }
     }
 
@@ -86,17 +89,20 @@ export default function Index() {
     }
   }
 
+  const onLongPressedButton = (value: number | string ) => {
+  }
 
 
   return (
     <Surface style={{flex: 1, justifyContent: "space-between", paddingVertical: 20}}>
+      <HeadBar />
       <View>
         <Animatable.Text 
           style={[
             styles.textInput, 
             { 
-              fontSize: sizeOperation,
-              color: theme.colors.onSurface
+              fontSize: fontSizeResult,
+              color: theme.colors.primary,
             }
           ]}
           transition={"fontSize"}
@@ -119,7 +125,11 @@ export default function Index() {
           {valueResult}
         </Animatable.Text>
       </View>
-      <KeyBoard onPressedButton={onPressedButton} style={{height: "50%"}}/>
+      <KeyBoard 
+        onPressedButton={onPressedButton} 
+        onLongPressedButton={onLongPressedButton}
+        style={{height: "50%"}}
+      />
     </Surface>
   );
 }
@@ -132,10 +142,11 @@ const styles = StyleSheet.create({
     textAlign: "right",
   },
   textInput: {
-    height: height / 3,
+    height: height / 5,
     textAlignVertical: "bottom",
     textAlign: "right",
-    padding: 10,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
     fontSize: 30,
   }
 })
